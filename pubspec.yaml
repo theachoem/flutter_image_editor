@@ -25,6 +25,8 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.0
 
+  scroll_to_index: ^1.0.6
+
   # State management
   hooks_riverpod: ^0.12.2
 
