@@ -25,9 +25,12 @@ dependencies:
     sdk: flutter
   cupertino_icons: ^1.0.0
 
-  #state management
-  # flutter_hooks: ^0.15.0
+  # State management
   hooks_riverpod: ^0.12.2
+
+  # Storages
+  shared_preferences: ^0.5.12+4
+  flutter_secure_storage: ^3.3.5
 
 dev_dependencies:
   flutter_test:
