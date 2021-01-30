@@ -1,0 +1,36 @@
+{
+  "editor.tabSize": 2,
+  "editor.insertSpaces": true,
+  "editor.detectIndentation": false,
+  "editor.rulers": [
+    120
+  ],
+  "emmet.includeLanguages": {
+    "erb": "html"
+  },
+  "files.insertFinalNewline": true,
+  "files.trimFinalNewlines": true,
+  "files.trimTrailingWhitespace": true,
+  "files.associations": {
+    "*.yaml.example": "yaml",
+    "*.dart.example": "dart",
+    "*.html.erb": "erb",
+    "Dockerfile*": "dockerfile"
+  },
+  "search.exclude": {
+    "**/.git": true,
+    "**/.svn": true,
+    "**/.hg": true,
+    "**/.DS_Store": true,
+    "**/node_modules": true,
+    "**/bower_components": true,
+    "**/www": true,
+    "**/.tmp": true,
+    "**/platforms": true,
+    "**/plugins": true,
+    "**/.vscode": true,
+    "**/dist": true,
+    "**/doc": true
+  },
+  "dart.lineLength": 120
+}
