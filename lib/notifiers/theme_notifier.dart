@@ -1,12 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_editor/configs/theme_config.dart';
+import 'package:flutter_image_editor/storages/dark_theme_storage.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class ThemeNotifier extends ChangeNotifier {
   bool isDarkMode;
+  DarkThemeStorage storage;
 
   ThemeNotifier() {
     isDarkMode = false;
+    storage = DarkThemeStorage();
+  }
+
+  load() {
+    // Future.delayed(Duration(seconds: 15));
+    storage.on.then((isDark) {
+      print("trigger theme load with mode: $isDark");
+      setMode(isDark);
+    });
   }
 
   toggleMode() {
@@ -16,6 +27,8 @@ class ThemeNotifier extends ChangeNotifier {
   void setMode(bool value) {
     if (value == isDarkMode) return;
     isDarkMode = value;
+
+    storage.setValue(isDarkMode);
     notifyListeners();
   }
 
@@ -42,5 +55,6 @@ class ThemeNotifier extends ChangeNotifier {
 
 final themeNotifier = ChangeNotifierProvider<ThemeNotifier>((ref) {
   var notifier = ThemeNotifier();
+  notifier.load();
   return notifier;
 });
