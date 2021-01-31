@@ -1,26 +1,25 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_editor/constants/config_constant.dart';
-import 'package:flutter_image_editor/screens/editing_screen.dart';
+import 'package:flutter_image_editor/notifiers/image_notifier.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
+import 'package:hooks_riverpod/all.dart';
 
-class HomeScreen extends StatelessWidget {
-  void _chooseImage(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return EditingScreen();
-        },
-      ),
-    );
+class HomeScreen extends ConsumerWidget {
+  void _chooseImage(BuildContext context, ImageNotifier notifier) async {
+    await notifier.pickAnImage();
+    if (notifier.requestStatus) {
+      print(notifier.image);
+      Navigator.pushReplacementNamed(context, '/editing');
+    }
   }
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, reader) {
+    var notifier = reader(imageNotifier);
     return Scaffold(
       appBar: FieAppBar(),
       body: GestureDetector(
-        onTap: () => _chooseImage(context),
+        onTap: () => _chooseImage(context, notifier),
         child: buildBody(context),
       ),
       bottomNavigationBar: const SizedBox(

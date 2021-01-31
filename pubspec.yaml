@@ -27,6 +27,16 @@ dependencies:
 
   scroll_to_index: ^1.0.6
 
+  # Image
+  image_picker: ^0.6.7+22
+  image: ^2.1.19
+
+  # File
+  filesize: ^1.0.4
+
+  # Date
+  date_format: ^1.0.9
+
   # State management
   hooks_riverpod: ^0.12.2
 
