@@ -4,6 +4,7 @@ import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 import 'package:flutter_image_editor/models/export_item_model.dart';
 import 'package:flutter_image_editor/models/tools_item_model.dart';
 import 'package:flutter_image_editor/notifiers/editing_notifier.dart';
+import 'package:flutter_image_editor/notifiers/image_notifier.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
 import 'package:flutter_image_editor/widgets/export_list_widget.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
@@ -21,17 +22,20 @@ class EditingScreen extends ConsumerWidget {
     final bottomNavHeight = MediaQuery.of(context).padding.bottom;
 
     var notifier = reader(editingNotifier);
+    var imgNotifier = reader(imageNotifier);
+
     return Stack(
       children: [
         Scaffold(
           key: scaffoldKey,
+          extendBody: true,
+          extendBodyBehindAppBar: true,
           appBar: FieAppBar(isEditing: true),
           body: buildBody(
             notifier: notifier,
             context: context,
+            imgNotifier: imgNotifier,
           ),
-          extendBodyBehindAppBar: true,
-          extendBody: true,
         ),
         buildMainBottomNavigation(
           notifier: notifier,
@@ -51,6 +55,7 @@ class EditingScreen extends ConsumerWidget {
 
   Widget buildBody({
     EditingNotifier notifier,
+    ImageNotifier imgNotifier,
     @required BuildContext context,
   }) {
     var boxDecoration = BoxDecoration(
@@ -77,9 +82,7 @@ class EditingScreen extends ConsumerWidget {
           decoration: boxDecoration,
           curve: Curves.easeInQuad,
           margin: margin,
-          child: Image.network(
-            'https://fiverr-res.cloudinary.com/images/q_auto,f_auto/gigs/134182425/original/eba17619f415cdda3df45653a71960c9d0e52f3c/make-a-beautiful-t-shirt-design.jpg',
-          ),
+          child: Image.asset(imgNotifier.image.path),
         ),
       ),
     );
