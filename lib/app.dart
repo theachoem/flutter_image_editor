@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_image_editor/homepage.dart';
 import 'package:flutter_image_editor/notifiers/theme_notifier.dart';
+import 'package:flutter_image_editor/screens/home_screen.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class App extends ConsumerWidget {
@@ -9,7 +9,7 @@ class App extends ConsumerWidget {
     final notifier = reader(themeNotifier);
     return MaterialApp(
       title: 'Flutter Image Editor',
-      home: MyHomePage(title: 'Flutter App Example'),
+      home: HomeScreen(),
       themeMode: notifier.themeMode,
       theme: notifier.themeData,
     );

@@ -4,15 +4,15 @@ import 'package:flutter_image_editor/notifiers/theme_notifier.dart';
 import 'package:flutter_image_editor/widgets/scale_down_on_tap.dart';
 import 'package:hooks_riverpod/all.dart';
 
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key key, this.title}) : super(key: key);
+class AppExample extends StatefulWidget {
+  AppExample({Key key, this.title}) : super(key: key);
   final String title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _AppExampleState createState() => _AppExampleState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _AppExampleState extends State<AppExample> {
   int _counter = 0;
 
   void _incrementCounter() {
