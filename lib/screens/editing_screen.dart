@@ -5,6 +5,7 @@ import 'package:flutter_image_editor/models/export_item_model.dart';
 import 'package:flutter_image_editor/models/tools_item_model.dart';
 import 'package:flutter_image_editor/notifiers/editing_notifier.dart';
 import 'package:flutter_image_editor/notifiers/image_notifier.dart';
+import 'package:flutter_image_editor/notifiers/zoom_notifier.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
 import 'package:flutter_image_editor/widgets/export_list_widget.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
@@ -12,44 +13,117 @@ import 'package:flutter_image_editor/widgets/style_list_widget.dart';
 import 'package:flutter_image_editor/widgets/tools_gridview.dart';
 import 'package:hooks_riverpod/all.dart';
 
-class EditingScreen extends ConsumerWidget {
+class EditingScreen extends StatefulWidget {
+  @override
+  _EditingScreenState createState() => _EditingScreenState();
+}
+
+class _EditingScreenState extends State<EditingScreen> {
   final List<BottomNavButtonModel> _bottomNavigationBar = BottomNavButtonModel.items;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
+  TransformationController transformationController;
+
   @override
-  Widget build(BuildContext context, reader) {
+  void initState() {
+    transformationController = TransformationController();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    transformationController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final statusBarHeight = MediaQuery.of(context).padding.top;
     final bottomNavHeight = MediaQuery.of(context).padding.bottom;
 
-    var notifier = reader(editingNotifier);
-    var imgNotifier = reader(imageNotifier);
+    return Consumer(
+      builder: (context, reader, child) {
+        var notifier = reader(editingNotifier);
+        var imgNotifier = reader(imageNotifier);
+        return Stack(
+          children: [
+            Scaffold(
+              key: scaffoldKey,
+              extendBody: true,
+              extendBodyBehindAppBar: true,
+              appBar: FieAppBar(isEditing: true),
+              body: buildBody(
+                notifier: notifier,
+                context: context,
+                imgNotifier: imgNotifier,
+              ),
+            ),
+            Positioned(
+              left: ConfigConstant.margin2,
+              bottom: ConfigConstant.toolbarHeight * 2,
+              child: Consumer(
+                builder: (context, reader, child) {
+                  var zoomNotify = reader(zoomNotifier(transformationController));
 
-    return Stack(
-      children: [
-        Scaffold(
-          key: scaffoldKey,
-          extendBody: true,
-          extendBodyBehindAppBar: true,
-          appBar: FieAppBar(isEditing: true),
-          body: buildBody(
-            notifier: notifier,
-            context: context,
-            imgNotifier: imgNotifier,
-          ),
-        ),
-        buildMainBottomNavigation(
-          notifier: notifier,
-          bottomNavHeight: bottomNavHeight,
-          statusBarHeight: statusBarHeight,
-          context: context,
-        ),
-        buildOnStylingBottomNavigation(
-          notifier: notifier,
-          bottomNavHeight: bottomNavHeight,
-          statusBarHeight: statusBarHeight,
-          context: context,
-        ),
-      ],
+                  double imageWidth = 120;
+                  double imageHeight = imgNotifier.imageDecode != null
+                      ? imageWidth * imgNotifier.imageDecode.height / imgNotifier.imageDecode.width
+                      : 0;
+
+                  if (imageHeight != null && zoomNotify.scale != null) {}
+
+                  bool zooming = notifier.isZooming &&
+                      imageHeight != null &&
+                      zoomNotify.scale != null &&
+                      zoomNotify.scale > 1 &&
+                      zoomNotify.details != null;
+                  return IgnorePointer(
+                    ignoring: !zooming,
+                    child: AnimatedOpacity(
+                      duration: ConfigConstant.fadeDuration,
+                      opacity: zooming ? 1 : 0,
+                      child: Container(
+                        width: 120,
+                        height: imageHeight,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: Theme.of(context).primaryColor.withOpacity(0.2),
+                          border: Border.all(
+                            color: Theme.of(context).primaryColor,
+                          ),
+                        ),
+                        child: AspectRatio(
+                          aspectRatio: imageWidth / zoomNotify.scale / imageHeight,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Theme.of(context).primaryColor.withOpacity(0.2),
+                              border: Border.all(
+                                color: Theme.of(context).accentColor,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+            buildMainBottomNavigation(
+              notifier: notifier,
+              bottomNavHeight: bottomNavHeight,
+              statusBarHeight: statusBarHeight,
+              context: context,
+            ),
+            buildOnStylingBottomNavigation(
+              notifier: notifier,
+              bottomNavHeight: bottomNavHeight,
+              statusBarHeight: statusBarHeight,
+              context: context,
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -58,6 +132,8 @@ class EditingScreen extends ConsumerWidget {
     ImageNotifier imgNotifier,
     @required BuildContext context,
   }) {
+    var zoomNotify = context.read(zoomNotifier(transformationController));
+
     var boxDecoration = BoxDecoration(
       borderRadius: BorderRadius.circular(ConfigConstant.objectHeight5),
       color: Colors.black.withOpacity(0.1),
@@ -82,7 +158,19 @@ class EditingScreen extends ConsumerWidget {
           decoration: boxDecoration,
           curve: Curves.easeInQuad,
           margin: margin,
-          child: Image.asset(imgNotifier.image.path),
+          child: InteractiveViewer(
+            transformationController: transformationController,
+            onInteractionStart: (ScaleStartDetails detail) {
+              notifier.setIsZoom(true);
+            },
+            onInteractionEnd: (ScaleEndDetails detail) {
+              notifier.setIsZoom(false);
+            },
+            onInteractionUpdate: (ScaleUpdateDetails detail) {
+              zoomNotify.setDragDetail(detail);
+            },
+            child: Image.file(imgNotifier.image),
+          ),
         ),
       ),
     );
@@ -127,6 +215,7 @@ class EditingScreen extends ConsumerWidget {
     if (type == BottomNavsType.Export) {
       showExportModalBottomSheet(
         context,
+        margin,
         notifier,
       ).whenComplete(() => notifier.onModalClose());
     }
@@ -185,7 +274,11 @@ class EditingScreen extends ConsumerWidget {
     );
   }
 
-  Future showExportModalBottomSheet(BuildContext context, EditingNotifier notifier) {
+  Future showExportModalBottomSheet(
+    BuildContext context,
+    EdgeInsets margin,
+    EditingNotifier notifier,
+  ) {
     return showModalBottomSheet(
       context: context,
       backgroundColor: Theme.of(context).primaryColor,

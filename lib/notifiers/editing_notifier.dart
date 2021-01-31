@@ -10,6 +10,8 @@ class EditingNotifier extends ChangeNotifier {
   List<ExportItemModel> _exportItems = ExportItemModel.items;
   List<StylesItemModel> _stylesItems = StylesItemModel.items;
 
+  bool _isZooming = false;
+
   EditingNotifier() {
     _toolsItems = ToolsItemModel.tools;
     _exportItems = ExportItemModel.items;
@@ -34,6 +36,12 @@ class EditingNotifier extends ChangeNotifier {
     setCurrentStyleType(null);
   }
 
+  setIsZoom(bool isZooming) {
+    this._isZooming = isZooming;
+    notifyListeners();
+  }
+
+  bool get isZooming => this._isZooming;
   int get currentIndex => this._currentIndex;
   List get toolsItems => this._toolsItems;
   List get exportItems => this._exportItems;
