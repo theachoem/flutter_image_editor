@@ -64,12 +64,12 @@ class _EditingScreenState extends State<EditingScreen> {
               child: Consumer(
                 builder: (context, reader, child) {
                   var zoomNotify = reader(zoomNotifier(transformationController));
-
                   double imageWidth = 120;
-                  double imageHeight = imgNotifier.imageDecode != null
-                      ? imageWidth * imgNotifier.imageDecode.height / imgNotifier.imageDecode.width
-                      : 0;
 
+                  var imageDecode = imgNotifier.imageDecode;
+                  var decodeNotNull = imageDecode != null && imageDecode.height != null && imageDecode.width != null;
+
+                  double imageHeight = decodeNotNull ? imageWidth * imageDecode.height / imageDecode.width : 0;
                   if (imageHeight != null && zoomNotify.scale != null) {}
 
                   bool zooming = notifier.isZooming &&
@@ -77,6 +77,7 @@ class _EditingScreenState extends State<EditingScreen> {
                       zoomNotify.scale != null &&
                       zoomNotify.scale > 1 &&
                       zoomNotify.details != null;
+
                   return IgnorePointer(
                     ignoring: !zooming,
                     child: AnimatedOpacity(
@@ -93,7 +94,7 @@ class _EditingScreenState extends State<EditingScreen> {
                           ),
                         ),
                         child: AspectRatio(
-                          aspectRatio: imageWidth / zoomNotify.scale / imageHeight,
+                          aspectRatio: zoomNotify.scale != null ? imageWidth / zoomNotify.scale / imageHeight : 1,
                           child: Container(
                             decoration: BoxDecoration(
                               color: Theme.of(context).primaryColor.withOpacity(0.2),
