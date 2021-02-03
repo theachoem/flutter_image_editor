@@ -9,7 +9,8 @@ class ToolsItemModel extends BaseItemModel {
     @required this.type,
     String label,
     IconData iconData,
-  }) : super(label, iconData);
+    String routeName,
+  }) : super(label, iconData, routeName: routeName);
 
   static List<ToolsItemModel> get tools {
     return [
@@ -17,6 +18,7 @@ class ToolsItemModel extends BaseItemModel {
         iconData: Icons.tune,
         label: "Tune Image",
         type: ToolsType.TuneImage,
+        routeName: '/tune_image',
       ),
       ToolsItemModel(
         iconData: Icons.change_history,
