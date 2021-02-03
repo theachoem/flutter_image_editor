@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_editor/constants/config_constant.dart';
+import 'package:flutter_image_editor/mixins/bottom_nav_mixin.dart';
 import 'package:flutter_image_editor/mixins/navigator_mixin.dart';
 import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 import 'package:flutter_image_editor/models/export_item_model.dart';
@@ -10,11 +11,12 @@ import 'package:flutter_image_editor/screens/image_view.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
 import 'package:flutter_image_editor/widgets/export_list_widget.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
+import 'package:flutter_image_editor/widgets/fire_text_button.dart';
 import 'package:flutter_image_editor/widgets/style_list_widget.dart';
 import 'package:flutter_image_editor/widgets/tools_gridview.dart';
 import 'package:hooks_riverpod/all.dart';
 
-class EditingScreen extends StatelessWidget with NavigatorMixin {
+class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin {
   final List<BottomNavButtonModel> _bottomNavigationBar = BottomNavButtonModel.items;
   final scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -25,7 +27,7 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
 
     return Consumer(
       builder: (context, reader, child) {
-        var notifier = reader(editingNotifier);
+        var editNotifier = reader(editingNotifier);
         var imgNotifier = reader(imageNotifier);
 
         return Stack(
@@ -36,18 +38,22 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
               extendBodyBehindAppBar: true,
               appBar: FieAppBar(isEditing: true),
               body: ImageView(
-                notifier: notifier,
+                editNotifier: editNotifier,
                 imgNotifier: imgNotifier,
               ),
             ),
-            buildMainBottomNavigation(
-              notifier: notifier,
+            positionedBottomNav(
               bottomNavHeight: bottomNavHeight,
-              statusBarHeight: statusBarHeight,
               context: context,
+              child: buildMainBottomNavigation(
+                editingNotifier: editNotifier,
+                bottomNavHeight: bottomNavHeight,
+                statusBarHeight: statusBarHeight,
+                context: context,
+              ),
             ),
             buildOnStylingBottomNavigation(
-              notifier: notifier,
+              notifier: editNotifier,
               bottomNavHeight: bottomNavHeight,
               statusBarHeight: statusBarHeight,
               context: context,
@@ -139,8 +145,10 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
               controller: controller,
               tools: notifier.toolsItems,
               onTap: (int index, ToolsItemModel item) {
-                print(index);
-                print(item);
+                if (item.routeName != null) {
+                  Navigator.pop(context);
+                  Navigator.of(context).pushNamed(item.routeName);
+                }
               },
             ),
           );
@@ -171,7 +179,7 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
   }
 
   Widget buildMainBottomNavigation({
-    EditingNotifier notifier,
+    EditingNotifier editingNotifier,
     double bottomNavHeight,
     double statusBarHeight,
     @required BuildContext context,
@@ -181,14 +189,14 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
         _bottomNavigationBar.length,
         (index) {
           var item = _bottomNavigationBar[index];
-          bool isSelected = notifier.currentIndex != null && notifier.currentIndex == index;
-          var style = TextStyle(
-            color: isSelected ? Theme.of(context).accentColor : null,
-          );
-          return InkWell(
+          bool isSelected = editingNotifier.currentIndex != null && editingNotifier.currentIndex == index;
+
+          return FieButton(
+            item: item,
+            isSelected: isSelected,
             onTap: () {
               onBottomNavTapped(
-                notifier,
+                editingNotifier,
                 item.type,
                 index: index,
                 statusBarHeight: statusBarHeight,
@@ -196,29 +204,12 @@ class EditingScreen extends StatelessWidget with NavigatorMixin {
                 context: context,
               );
             },
-            child: Container(
-              alignment: Alignment.center,
-              height: ConfigConstant.toolbarHeight,
-              width: MediaQuery.of(context).size.width / 3,
-              child: Text(item.label, style: style),
-            ),
           );
         },
       ),
     );
 
-    return Positioned(
-      bottom: 0,
-      child: Container(
-        color: Theme.of(context).primaryColor,
-        padding: EdgeInsets.only(bottom: bottomNavHeight),
-        child: Material(
-          elevation: 0,
-          color: Theme.of(context).primaryColor,
-          child: itemsWidget,
-        ),
-      ),
-    );
+    return itemsWidget;
   }
 
   Widget buildOnStylingBottomNavigation({
