@@ -6,4 +6,6 @@ enum TuneType {
   Highlights,
   Shadows,
   Warmth,
+  Temperature,
+  Tint,
 }

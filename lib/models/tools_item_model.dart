@@ -34,6 +34,7 @@ class ToolsItemModel extends BaseItemModel {
         iconData: Icons.exposure,
         label: "White balance",
         type: ToolsType.WhiteBalance,
+        routeName: '/white_balance',
       ),
       ToolsItemModel(
         iconData: Icons.crop,

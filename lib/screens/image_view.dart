@@ -9,13 +9,12 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 class ImageView extends StatefulWidget {
   const ImageView({
     Key key,
-    @required this.editNotifier,
-    @required this.imgNotifier,
+    this.onPickColor,
+    this.imageKey,
   }) : super(key: key);
 
-  final EditingNotifier editNotifier;
-  final ImageNotifier imgNotifier;
-
+  final GlobalKey imageKey;
+  final Null Function(dynamic) onPickColor;
   @override
   _ImageViewState createState() => _ImageViewState();
 }
@@ -37,19 +36,25 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
 
   @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        buildBody(
-          editingNotifier: widget.editNotifier,
-          context: context,
-          imgNotifier: widget.imgNotifier,
-        ),
-        buildSmallMap(),
-      ],
+    return Consumer(
+      builder: (context, reader, child) {
+        var editNotifier = reader(editingNotifier);
+        var imgNotifier = reader(imageNotifier);
+        return Stack(
+          children: [
+            buildBody(
+              editingNotifier: editNotifier,
+              context: context,
+              imgNotifier: imgNotifier,
+            ),
+            buildSmallMap(imgNotifier: imgNotifier),
+          ],
+        );
+      },
     );
   }
 
-  Positioned buildSmallMap() {
+  Positioned buildSmallMap({ImageNotifier imgNotifier}) {
     return Positioned(
       left: ConfigConstant.margin2,
       bottom: ConfigConstant.toolbarHeight * 2,
@@ -58,7 +63,7 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
           var zoomNotify = reader(zoomNotifier(transformationController));
           double imageWidth = 120;
 
-          var imageDecode = widget.imgNotifier.imageDecode;
+          var imageDecode = imgNotifier.imageDecode;
           var decodeNotNull = imageDecode != null && imageDecode.height != null && imageDecode.width != null;
 
           double imageHeight = decodeNotNull ? imageWidth * imageDecode.height / imageDecode.width : 0;
@@ -128,13 +133,24 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
 
         editingNotifier.setPopScrolling(!editingNotifier.isPopScrolling);
       },
+      onPanDown: (detail) {
+        if (widget.onPickColor != null) {
+          widget.onPickColor(detail);
+        }
+      },
       onHorizontalDragUpdate: (DragUpdateDetails detail) {
         editingNotifier.onHorizontalDragDetail(detail);
         editingNotifier.calcTuneTypeValue(detail.primaryDelta, MediaQuery.of(context).size.width);
+        if (widget.onPickColor != null) {
+          widget.onPickColor(detail);
+        }
       },
       onVerticalDragUpdate: (detail) {
         editingNotifier.onVerticalDragDetail(detail);
         editingNotifier.calcTuneTypeScroll(detail.primaryDelta);
+        if (widget.onPickColor != null) {
+          widget.onPickColor(detail);
+        }
       },
       onVerticalDragStart: (detail) {
         editingNotifier.onVerticalDragStart(detail);
@@ -159,7 +175,10 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
             onInteractionUpdate: (ScaleUpdateDetails detail) {
               zoomNotify.setDragDetail(detail);
             },
-            child: Image.file(imgNotifier.image),
+            child: Image.file(
+              imgNotifier.image,
+              key: widget.imageKey,
+            ),
           ),
         ),
       ),
