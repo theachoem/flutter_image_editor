@@ -9,7 +9,8 @@ class BottomNavButtonModel extends BaseItemModel {
     @required this.type,
     String label,
     IconData iconData,
-  }) : super(label, iconData);
+    Function onPressed,
+  }) : super(label, iconData, onPressed: onPressed);
 
   static List<BottomNavButtonModel> get items {
     return [

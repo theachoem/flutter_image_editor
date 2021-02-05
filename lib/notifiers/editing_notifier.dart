@@ -125,6 +125,7 @@ class EditingNotifier extends ChangeNotifier {
   }
 
   bool get isZooming => this._isZooming;
+  bool get isColorPicking => false;
   double get tuneTypeValue => this._tuneTypeValue;
   double get popScroll => this._popScroll;
   bool get isPopScrolling => this._isPopScrolling;

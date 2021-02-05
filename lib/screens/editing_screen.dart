@@ -6,7 +6,6 @@ import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 import 'package:flutter_image_editor/models/export_item_model.dart';
 import 'package:flutter_image_editor/models/tools_item_model.dart';
 import 'package:flutter_image_editor/notifiers/editing_notifier.dart';
-import 'package:flutter_image_editor/notifiers/image_notifier.dart';
 import 'package:flutter_image_editor/screens/image_view.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
 import 'package:flutter_image_editor/widgets/export_list_widget.dart';
@@ -28,7 +27,6 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
     return Consumer(
       builder: (context, reader, child) {
         var editNotifier = reader(editingNotifier);
-        var imgNotifier = reader(imageNotifier);
 
         return Stack(
           children: [
@@ -37,10 +35,7 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
               extendBody: true,
               extendBodyBehindAppBar: true,
               appBar: FieAppBar(isEditing: true),
-              body: ImageView(
-                editNotifier: editNotifier,
-                imgNotifier: imgNotifier,
-              ),
+              body: ImageView(),
             ),
             positionedBottomNav(
               bottomNavHeight: bottomNavHeight,

@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_image_editor/notifiers/image_info.dart';
+import 'package:flutter_image_editor/screens/image_info.dart';
 import 'package:flutter_image_editor/notifiers/theme_notifier.dart';
 import 'package:flutter_image_editor/screens/tools/tune_image_screen.dart';
 import 'package:flutter_image_editor/screens/editing_screen.dart';
 import 'package:flutter_image_editor/screens/home_screen.dart';
+import 'package:flutter_image_editor/screens/tools/white_balance_screen.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class App extends ConsumerWidget {
@@ -18,6 +19,7 @@ class App extends ConsumerWidget {
         '/editing': (context) => EditingScreen(),
         '/image_info': (context) => FieImageInfo(),
         '/tune_image': (context) => TuneImageScreen(),
+        '/white_balance': (context) => ColorPickerWidget(),
       },
       themeMode: notifier.themeMode,
       theme: notifier.themeData,
