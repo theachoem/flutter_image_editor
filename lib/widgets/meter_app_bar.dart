@@ -16,9 +16,12 @@ class MeterAppBar extends PreferredSize {
   final String title;
   final double statusBarHeight;
   final double tuneValue;
+
   @override
   Widget build(BuildContext context) {
     double width = MediaQuery.of(context).size.width;
+    print(tuneValue);
+    print("OTHER WIDGT");
     var meterStack = Stack(
       children: [
         Container(
@@ -60,8 +63,6 @@ class MeterAppBar extends PreferredSize {
   Widget buildMeter({double width, BuildContext context, double tuneValue}) {
     final meters = 4;
     final meterHeight = 4.0;
-
-    // var tuneTypeValue = editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].value;
 
     return SafeArea(
       child: Container(

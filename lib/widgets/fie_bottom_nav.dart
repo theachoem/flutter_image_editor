@@ -12,12 +12,16 @@ class FieBottomNav extends StatelessWidget with SnackBarMixin {
     @required this.editingNotifier,
     @required this.centeredItems,
     @required this.onSaved,
+    @required this.afterPop,
+    this.selectedIndex,
   }) : super(key: key);
 
   final EditingNotifier editingNotifier;
+  final Function() afterPop;
   final GlobalKey<ScaffoldState> scaffoldKey;
   final List<BottomNavButtonModel> centeredItems;
   final Function onSaved;
+  final int selectedIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -31,16 +35,18 @@ class FieBottomNav extends StatelessWidget with SnackBarMixin {
               label: 'Cancels',
               iconData: Icons.clear,
             ),
-            isSelected: true,
-            onTap: () {
+            onTap: () async {
               Navigator.pop(context);
+              if (this.afterPop != null) {
+                afterPop();
+              }
             },
           ),
           Spacer(),
           for (var i = 0; i < centeredItems.length; i++)
             FieButton.icon(
               item: centeredItems[i],
-              isSelected: true,
+              isSelected: selectedIndex != null && selectedIndex == i,
               onTap: centeredItems[i].onPressed,
             ),
           Spacer(),
@@ -50,7 +56,6 @@ class FieBottomNav extends StatelessWidget with SnackBarMixin {
               label: 'Apply',
               iconData: Icons.check,
             ),
-            isSelected: true,
             onTap: onSaved,
           ),
         ],

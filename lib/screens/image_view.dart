@@ -123,6 +123,8 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
       ConfigConstant.margin1,
       editingNotifier.currentIndex == 0 ? ConfigConstant.objectHeight4 : 0,
     );
+
+    bool isHasTune = editingNotifier.tuneTypeList != null && editingNotifier.tuneTypeList.length > 0;
     return GestureDetector(
       onTap: () {
         if (editingNotifier.currentIndex != null) {
@@ -139,24 +141,33 @@ class _ImageViewState extends State<ImageView> with NavigatorMixin {
         }
       },
       onHorizontalDragUpdate: (DragUpdateDetails detail) {
-        editingNotifier.onHorizontalDragDetail(detail);
-        editingNotifier.calcTuneTypeValue(detail.primaryDelta, MediaQuery.of(context).size.width);
+        if (editingNotifier != null && widget.onPickColor == null) {
+          editingNotifier.onHorizontalDragDetail(detail);
+
+          if (isHasTune) editingNotifier.calcTuneTypeValue(detail.primaryDelta, MediaQuery.of(context).size.width);
+        }
         if (widget.onPickColor != null) {
           widget.onPickColor(detail);
         }
       },
       onVerticalDragUpdate: (detail) {
-        editingNotifier.onVerticalDragDetail(detail);
-        editingNotifier.calcTuneTypeScroll(detail.primaryDelta);
+        if (editingNotifier != null && widget.onPickColor == null) {
+          editingNotifier.onVerticalDragDetail(detail);
+          if (isHasTune) editingNotifier.calcTuneTypeScroll(detail.primaryDelta);
+        }
         if (widget.onPickColor != null) {
           widget.onPickColor(detail);
         }
       },
       onVerticalDragStart: (detail) {
-        editingNotifier.onVerticalDragStart(detail);
+        if (editingNotifier != null && widget.onPickColor == null) {
+          editingNotifier.onVerticalDragStart(detail);
+        }
       },
       onVerticalDragEnd: (detail) {
-        editingNotifier.onVerticalDragEnd(detail);
+        if (editingNotifier != null && widget.onPickColor == null) {
+          editingNotifier.onVerticalDragEnd(detail);
+        }
       },
       child: Center(
         child: AnimatedContainer(

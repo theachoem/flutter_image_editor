@@ -29,4 +29,12 @@ class TuneTypeModel extends BaseItemModel {
       TuneTypeModel(label: "Warmth", type: TuneType.Warmth),
     ];
   }
+
+  static List<TuneTypeModel> get whiteBalance {
+    return [
+      TuneTypeModel(label: "Brightness", type: TuneType.Brightness),
+      TuneTypeModel(label: "Constrast", type: TuneType.Constrast),
+      TuneTypeModel(label: "Saturation", type: TuneType.Saturation),
+    ];
+  }
 }

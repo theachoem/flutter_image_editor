@@ -5,10 +5,10 @@ import 'package:flutter_image_editor/models/styles_item_model.dart';
 import 'package:flutter_image_editor/models/tools_item_model.dart';
 import 'package:flutter_image_editor/models/tune_type_model.dart';
 import 'package:flutter_image_editor/types/styles_type.dart';
+import 'package:flutter_image_editor/types/tools_type.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class EditingNotifier extends ChangeNotifier {
-  final List<TuneTypeModel> tuneTypeList = TuneTypeModel.tuneTypesList;
   final List<ToolsItemModel> _toolsItems = ToolsItemModel.tools;
   final List<ExportItemModel> _exportItems = ExportItemModel.items;
   final List<StylesItemModel> _stylesItems = StylesItemModel.items;
@@ -16,9 +16,7 @@ class EditingNotifier extends ChangeNotifier {
   /// This refer to current [BottomNav]
   int _currentIndex;
 
-  DragUpdateDetails _onHorizontalDragUpdateDetails;
-  DragUpdateDetails _onVerticalDragUpdateDetails;
-
+  bool _isColorPicking = false;
   bool _isZooming = false;
   StyleType _currentStyleType;
 
@@ -42,8 +40,59 @@ class EditingNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  toggleIsColorPicking() {
+    this._isColorPicking = !this._isColorPicking;
+    notifyListeners();
+  }
+
+  bool get isZooming => this._isZooming;
+  bool get isColorPicking => this._isColorPicking;
+  int get currentIndex => this._currentIndex;
+  List get toolsItems => this._toolsItems;
+  List get exportItems => this._exportItems;
+  List get stylesItems => this._stylesItems;
+  StyleType get currentStyleType => this._currentStyleType;
+
+  /////////////////////////////////
+  /// [Tune Widget]
+  /// /////////////////////////////
+
+  List<TuneTypeModel> _tuneTypeList;
+
+  DragUpdateDetails _onHorizontalDragUpdateDetails;
+  DragUpdateDetails _onVerticalDragUpdateDetails;
+
   double _tuneTypeValue = 0;
   double _tuneTypeValueAsPercentage = 0;
+
+  setTuneTypeValue(double value) {
+    if (this._tuneTypeValue != value) {
+      if (value == null) {
+        this._tuneTypeValue = 0;
+      } else {
+        this._tuneTypeValue = value;
+      }
+      notifyListeners();
+    }
+  }
+
+  setTuneItem(ToolsType toolsType) {
+    if (toolsType != null) {
+      switch (toolsType) {
+        case ToolsType.TuneImage:
+          print("Case 1");
+          this._tuneTypeList = TuneTypeModel.tuneTypesList;
+          notifyListeners();
+          break;
+        case ToolsType.WhiteBalance:
+          print("Case 2");
+          this._tuneTypeList = TuneTypeModel.whiteBalance;
+          notifyListeners();
+          break;
+        default:
+      }
+    }
+  }
 
   ///This were called in `onHorizontalDragUpdate()`
   void calcTuneTypeValue(double primaryDelta, double width) {
@@ -53,12 +102,14 @@ class EditingNotifier extends ChangeNotifier {
     /// we use halfWidth since our meter is divided to 2 containers which are nagative and positive.
     double halfWidth = width / 2;
     if (newValue < halfWidth && newValue > -halfWidth) {
-      this._tuneTypeValue = newValue;
+      setTuneTypeValue(newValue);
       this._tuneTypeValueAsPercentage = newValue * 100 / halfWidth;
 
-      this.tuneTypeList[this.currentTuneTypeIndex].setValue(this._tuneTypeValue);
-      this.tuneTypeList[this.currentTuneTypeIndex].setValueAsPercentage(this._tuneTypeValueAsPercentage);
+      this._tuneTypeList[this.currentTuneTypeIndex].setValue(this._tuneTypeValue);
+      this._tuneTypeList[this.currentTuneTypeIndex].setValueAsPercentage(this._tuneTypeValueAsPercentage);
 
+      print("NEW VALUE");
+      print(newValue);
       notifyListeners();
     }
   }
@@ -95,6 +146,7 @@ class EditingNotifier extends ChangeNotifier {
       var min = height - (i + 1) * objectHeight - 8;
       if (newPopScroll < max && newPopScroll > min) {
         this._currentTuneTypeIndex = i;
+        setTuneTypeValue(_tuneTypeList[i].value);
       }
     }
   }
@@ -124,18 +176,12 @@ class EditingNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
-  bool get isZooming => this._isZooming;
-  bool get isColorPicking => false;
   double get tuneTypeValue => this._tuneTypeValue;
   double get popScroll => this._popScroll;
   bool get isPopScrolling => this._isPopScrolling;
   double get tuneTypeValueAsPercentage => this._tuneTypeValueAsPercentage;
-  int get currentIndex => this._currentIndex;
   int get currentTuneTypeIndex => this._currentTuneTypeIndex;
-  List get toolsItems => this._toolsItems;
-  List get exportItems => this._exportItems;
-  List get stylesItems => this._stylesItems;
-  StyleType get currentStyleType => this._currentStyleType;
+  List<TuneTypeModel> get tuneTypeList => this._tuneTypeList;
   DragUpdateDetails get onHorizontalDragUpdateDetails => this._onHorizontalDragUpdateDetails;
   DragUpdateDetails get onVerticalDragUpdateDetails => this._onVerticalDragUpdateDetails;
 }

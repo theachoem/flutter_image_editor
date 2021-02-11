@@ -142,6 +142,7 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
               onTap: (int index, ToolsItemModel item) {
                 if (item.routeName != null) {
                   Navigator.pop(context);
+                  notifier.setTuneItem(item.type);
                   Navigator.of(context).pushNamed(item.routeName);
                 }
               },

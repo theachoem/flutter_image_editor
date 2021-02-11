@@ -4,25 +4,27 @@ import 'package:flutter_image_editor/notifiers/editing_notifier.dart';
 import 'package:hooks_riverpod/all.dart';
 
 class TuneWidget extends ConsumerWidget {
-  const TuneWidget({Key key}) : super(key: key);
+  const TuneWidget({
+    Key key,
+    @required this.editingNotifier,
+  }) : super(key: key);
+  final EditingNotifier editingNotifier;
 
   @override
   Widget build(BuildContext context, reader) {
-    var editNotifier = reader(editingNotifier);
     var tuneTypeValueAsPercent =
-        editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].valueAsPercent.roundToDouble().toInt();
-    var currentTuneTypeLabel = editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].label;
+        editingNotifier.tuneTypeList[editingNotifier.currentTuneTypeIndex].valueAsPercent.roundToDouble().toInt();
+    var currentTuneTypeLabel = editingNotifier.tuneTypeList[editingNotifier.currentTuneTypeIndex].label;
     final width = MediaQuery.of(context).size.width;
 
     return Stack(
       children: [
         buildTuneTypeContainerList(
-          editNotifier: editNotifier,
           width: width,
           context: context,
         ),
         buildCurrentTuneTypeContainer(
-          editNotifier: editNotifier,
+          editingNotifier: editingNotifier,
           width: width,
           context: context,
           currentTuneTypeLabel: currentTuneTypeLabel,
@@ -33,7 +35,7 @@ class TuneWidget extends ConsumerWidget {
   }
 
   Positioned buildCurrentTuneTypeContainer({
-    EditingNotifier editNotifier,
+    EditingNotifier editingNotifier,
     double width,
     BuildContext context,
     String currentTuneTypeLabel,
@@ -46,7 +48,7 @@ class TuneWidget extends ConsumerWidget {
       bottom: 0,
       child: IgnorePointer(
         child: AnimatedOpacity(
-          opacity: editNotifier.isPopScrolling ? 1 : 0,
+          opacity: editingNotifier.isPopScrolling ? 1 : 0,
           duration: ConfigConstant.fadeDuration,
           child: Center(
             child: Container(
@@ -74,7 +76,6 @@ class TuneWidget extends ConsumerWidget {
   }
 
   Positioned buildTuneTypeContainerList({
-    EditingNotifier editNotifier,
     double width,
     BuildContext context,
   }) {
@@ -86,10 +87,10 @@ class TuneWidget extends ConsumerWidget {
       child: Center(
         child: IgnorePointer(
           child: AnimatedOpacity(
-            opacity: editNotifier.isPopScrolling ? 1 : 0,
+            opacity: editingNotifier.isPopScrolling ? 1 : 0,
             duration: ConfigConstant.fadeDuration,
             child: Transform.translate(
-              offset: Offset(0, editNotifier.popScroll),
+              offset: Offset(0, editingNotifier.popScroll),
               child: Container(
                 width: width * 0.75,
                 constraints: const BoxConstraints(maxWidth: 360, minWidth: 250),
@@ -107,9 +108,9 @@ class TuneWidget extends ConsumerWidget {
                     ),
                     Wrap(
                       children: List.generate(
-                        editNotifier.tuneTypeList.length,
+                        editingNotifier.tuneTypeList.length,
                         (index) {
-                          var tuneItem = editNotifier.tuneTypeList[index];
+                          var tuneItem = editingNotifier.tuneTypeList[index];
                           var valueAsPercent = tuneItem.valueAsPercent.roundToDouble().toInt();
                           return Container(
                             height: ConfigConstant.objectHeight2,

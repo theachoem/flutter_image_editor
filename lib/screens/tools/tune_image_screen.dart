@@ -23,6 +23,7 @@ class TuneImageScreen extends StatelessWidget with BottomNavMixin, SnackBarMixin
     return Consumer(
       builder: (context, reader, child) {
         var editNotifier = reader(editingNotifier);
+
         var tuneTypeValueAsPercent =
             editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].valueAsPercent.roundToDouble().toInt();
         var currentTuneTypeLabel = editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].label;
@@ -38,13 +39,18 @@ class TuneImageScreen extends StatelessWidget with BottomNavMixin, SnackBarMixin
               ),
               body: ImageView(),
             ),
-            TuneWidget(),
+            TuneWidget(
+              editingNotifier: editNotifier,
+            ),
             positionedBottomNav(
               context: context,
               bottomNavHeight: bottomNavHeight,
               child: FieBottomNav(
                 scaffoldKey: _scaffoldKey,
                 editingNotifier: editNotifier,
+                afterPop: () {
+                  editNotifier.setTuneTypeValue(0);
+                },
                 onSaved: () {},
                 centeredItems: [
                   BottomNavButtonModel(

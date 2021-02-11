@@ -8,7 +8,7 @@ class ColorPickerNotifier extends ChangeNotifier {
   img.Image _image;
 
   ColorPickerNotifier() {
-    _color = Colors.amber;
+    _color = Color(0xFFFFFFFF);
   }
 
   setColor(Color _color) {

@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_image_editor/constants/config_constant.dart';
+import 'package:flutter_image_editor/constants/theme_constant.dart';
 import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 
 class FieButton extends StatelessWidget {
@@ -43,7 +44,10 @@ class FieButton extends StatelessWidget {
         alignment: Alignment.center,
         height: ConfigConstant.toolbarHeight,
         width: ConfigConstant.toolbarHeight,
-        child: Icon(item.iconData),
+        child: Icon(
+          item.iconData,
+          color: isSelected ? ThemeConstant.skyPrimary : null,
+        ),
       ),
     );
   }

@@ -47,6 +47,7 @@ class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixi
     var imgNotifier = reader(imageNotifier);
     var colorPickNotifier = reader(colorPickerNotifier);
     var editNotifier = reader(editingNotifier);
+
     Color selectedColor = colorPickNotifier.color ?? Colors.green;
     var tuneTypeValueAsPercent =
         editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].valueAsPercent.roundToDouble().toInt();
@@ -60,99 +61,125 @@ class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixi
           size.height / 2,
         );
 
-    return Scaffold(
-      key: _scaffoldKey,
-      appBar: MeterAppBar(
-        title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
-        statusBarHeight: statusBarHeight,
-        tuneValue: editNotifier.tuneTypeValue,
+    return WillPopScope(
+      onWillPop: () {
+        editNotifier.setTuneTypeValue(null);
+        return;
+      },
+      child: Scaffold(
+        key: _scaffoldKey,
+        extendBodyBehindAppBar: true,
+        appBar: MeterAppBar(
+          title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
+          statusBarHeight: statusBarHeight,
+          tuneValue: editNotifier.tuneTypeValue ?? 0,
+        ),
+        body: Stack(
+          children: <Widget>[
+            RepaintBoundary(
+              key: paintKey,
+              child: ImageView(
+                imageKey: imageKey,
+                onPickColor: editNotifier.isColorPicking
+                    ? (details) {
+                        colorPickNotifier.setOffset(details.globalPosition);
+                        searchPixel(
+                          details.globalPosition,
+                          imgNotifier.image.path,
+                          colorPickNotifier,
+                        );
+                      }
+                    : null,
+              ),
+            ),
+            if (!editNotifier.isColorPicking) TuneWidget(editingNotifier: editNotifier),
+            if (editNotifier.isColorPicking) buildColorFloatingBox(colorPopOffset, selectedColor),
+            if (editNotifier.isColorPicking) buildColorTextBox(colorPopOffset, selectedColor),
+            positionedBottomNav(
+              context: context,
+              bottomNavHeight: bottomNavHeight,
+              child: buildFieBottomNav(_scaffoldKey, editNotifier),
+            ),
+          ],
+        ),
       ),
-      extendBodyBehindAppBar: true,
-      body: Stack(
-        children: <Widget>[
-          RepaintBoundary(
-            key: paintKey,
-            child: ImageView(
-              imageKey: imageKey,
-              onPickColor: editNotifier.isColorPicking
-                  ? (details) {
-                      colorPickNotifier.setOffset(details.globalPosition);
-                      searchPixel(
-                        details.globalPosition,
-                        imgNotifier.image.path,
-                        colorPickNotifier,
-                      );
-                    }
-                  : null,
-            ),
-          ),
-          TuneWidget(),
-          if (editNotifier.isColorPicking)
-            Transform(
-              transform: Matrix4.identity()
-                ..translate(
-                  colorPopOffset.dx - 95,
-                  colorPopOffset.dy - 95,
-                ),
-              child: Container(
-                margin: EdgeInsets.all(70),
-                width: 50,
-                height: 50,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: selectedColor,
-                  border: Border.all(width: 2.0, color: Colors.white),
-                  boxShadow: ConfigConstant.boxShadow,
-                ),
-              ),
-            ),
-          if (editNotifier.isColorPicking)
-            Transform(
-              transform: Matrix4.identity()
-                ..translate(
-                  colorPopOffset.dx,
-                  colorPopOffset.dy + 20,
-                ),
-              child: Text(
-                selectedColor.toString().toUpperCase().replaceAll("COLOR(0X", "").replaceAll(")", ""),
-                style: TextStyle(
-                  color: Colors.white,
-                  backgroundColor: Colors.black54,
-                ),
-              ),
-            ),
-          positionedBottomNav(
-            context: context,
-            bottomNavHeight: bottomNavHeight,
-            child: FieBottomNav(
-              onSaved: () {},
-              scaffoldKey: _scaffoldKey,
-              editingNotifier: editNotifier,
-              centeredItems: [
-                BottomNavButtonModel(
-                  type: BottomNavsType.Adjust,
-                  label: 'Auto',
-                  iconData: Icons.wb_auto,
-                  onPressed: () {},
-                ),
-                BottomNavButtonModel(
-                  type: BottomNavsType.AutoAdjust,
-                  label: 'Adjust',
-                  iconData: Icons.tune,
-                  onPressed: () {
-                    editNotifier.setPopScrolling(!editNotifier.isPopScrolling);
-                  },
-                ),
-                BottomNavButtonModel(
-                  type: BottomNavsType.AutoAdjust,
-                  label: 'Colour Picker',
-                  iconData: Icons.colorize_sharp,
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-        ],
+    );
+  }
+
+  FieBottomNav buildFieBottomNav(GlobalKey<State<StatefulWidget>> _scaffoldKey, EditingNotifier editNotifier) {
+    return FieBottomNav(
+      onSaved: () {},
+      afterPop: () {
+        editNotifier.setTuneTypeValue(null);
+      },
+      scaffoldKey: _scaffoldKey,
+      editingNotifier: editNotifier,
+      selectedIndex: editNotifier.isColorPicking
+          ? 2
+          : editNotifier.isPopScrolling
+              ? 1
+              : null,
+      centeredItems: [
+        BottomNavButtonModel(
+          type: BottomNavsType.Adjust,
+          label: 'Auto',
+          iconData: Icons.wb_auto,
+          onPressed: () {},
+        ),
+        BottomNavButtonModel(
+          type: BottomNavsType.AutoAdjust,
+          label: 'Adjust',
+          iconData: Icons.tune,
+          onPressed: () {
+            editNotifier.setPopScrolling(!editNotifier.isPopScrolling);
+          },
+        ),
+        BottomNavButtonModel(
+          type: BottomNavsType.AutoAdjust,
+          label: 'Colour Picker',
+          iconData: Icons.colorize_sharp,
+          onPressed: () {
+            editNotifier.toggleIsColorPicking();
+          },
+        ),
+      ],
+    );
+  }
+
+  Transform buildColorTextBox(Offset colorPopOffset, Color selectedColor) {
+    return Transform(
+      transform: Matrix4.identity()
+        ..translate(
+          colorPopOffset.dx,
+          colorPopOffset.dy + 20,
+        ),
+      child: Text(
+        selectedColor.toString().toUpperCase().replaceAll("COLOR(0X", "").replaceAll(")", ""),
+        style: TextStyle(
+          color: Colors.white,
+          backgroundColor: Colors.black54,
+        ),
+      ),
+    );
+  }
+
+  Transform buildColorFloatingBox(Offset colorPopOffset, Color selectedColor) {
+    return Transform(
+      transform: Matrix4.identity()
+        ..translate(
+          colorPopOffset.dx - 95,
+          colorPopOffset.dy - 95,
+        ),
+      child: Container(
+        margin: EdgeInsets.all(70),
+        width: 50,
+        height: 50,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          color: selectedColor,
+          border: Border.all(width: 2.0, color: Colors.white),
+          boxShadow: ConfigConstant.boxShadow,
+        ),
       ),
     );
   }
@@ -226,7 +253,7 @@ class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixi
               ),
               isSelected: true,
               onTap: () {
-                editingNotifier.setPopScrolling(!editingNotifier.isPopScrolling);
+                if (editingNotifier != null) editingNotifier.setPopScrolling(!editingNotifier.isPopScrolling);
               },
             ),
             FieButton.icon(
