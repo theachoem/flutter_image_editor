@@ -40,6 +40,7 @@ class ToolsItemModel extends BaseItemModel {
         iconData: Icons.crop,
         label: "Crop",
         type: ToolsType.Crop,
+        routeName: '/crop',
       ),
       ToolsItemModel(
         iconData: Icons.rotate_90_degrees_ccw_sharp,

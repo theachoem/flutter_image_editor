@@ -7,7 +7,9 @@ import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:scroll_to_index/scroll_to_index.dart';
 
 class StylesListWidget extends StatefulWidget {
-  StylesListWidget({Key key}) : super(key: key);
+  StylesListWidget({Key key, @required this.items, @required this.onPressed}) : super(key: key);
+  final List<StylesItemModel> items;
+  final Function(StyleType) onPressed;
 
   @override
   _StylesListWidgetState createState() => _StylesListWidgetState();
@@ -45,9 +47,9 @@ class _StylesListWidgetState extends State<StylesListWidget> {
           shrinkWrap: true,
           controller: authScrollController,
           children: List.generate(
-            notifier.stylesItems.length,
+            widget.items.length,
             (index) {
-              var item = notifier.stylesItems[index];
+              var item = widget.items[index];
               return AutoScrollTag(
                 key: ValueKey(index),
                 controller: authScrollController,
@@ -73,7 +75,7 @@ class _StylesListWidgetState extends State<StylesListWidget> {
       return FlatButton(
         padding: EdgeInsets.zero,
         onPressed: () async {
-          notifier.setCurrentStyleType(item.type);
+          widget.onPressed(item.type);
           authScrollController.scrollToIndex(index, preferPosition: AutoScrollPosition.middle);
         },
         child: Container(
@@ -84,7 +86,7 @@ class _StylesListWidgetState extends State<StylesListWidget> {
       return FlatButton(
         padding: EdgeInsets.zero,
         onPressed: () async {
-          notifier.setCurrentStyleType(item.type);
+          widget.onPressed(item.type);
           authScrollController.scrollToIndex(index, preferPosition: AutoScrollPosition.middle);
         },
         child: Column(

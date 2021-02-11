@@ -20,4 +20,23 @@ mixin BottomNavMixin {
       ),
     );
   }
+
+  PersistentBottomSheetController showStylesBottomSheet({
+    EdgeInsets margin,
+    GlobalKey<ScaffoldState> scaffoldKey,
+    double objectHeight,
+    @required Widget child,
+  }) {
+    return scaffoldKey.currentState.showBottomSheet(
+      (context) {
+        return Container(
+          margin: margin,
+          height: objectHeight,
+          color: Theme.of(context).primaryColor,
+          child: child,
+        );
+      },
+      backgroundColor: Colors.transparent,
+    );
+  }
 }

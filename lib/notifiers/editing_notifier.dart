@@ -77,6 +77,7 @@ class EditingNotifier extends ChangeNotifier {
   }
 
   setTuneItem(ToolsType toolsType) {
+    print(toolsType);
     if (toolsType != null) {
       switch (toolsType) {
         case ToolsType.TuneImage:

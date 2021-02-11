@@ -31,7 +31,7 @@ import 'package:flutter_image_editor/widgets/fire_text_button.dart';
 import 'package:flutter_image_editor/widgets/tune_widget.dart';
 import 'package:hooks_riverpod/hooks_riverpod.dart';
 import 'package:image/image.dart' as img;
-import 'package:flutter/services.dart' show rootBundle;
+import 'package:flutter/services.dart' show SystemChrome, SystemUiOverlayStyle, rootBundle;
 
 class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixin {
   final GlobalKey imageKey = GlobalKey();
@@ -39,8 +39,7 @@ class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixi
 
   @override
   Widget build(BuildContext context, reader) {
-    final bottomNavHeight = MediaQuery.of(context).padding.bottom;
-    final statusBarHeight = MediaQuery.of(context).padding.top;
+    // final bottomNavHeight = MediaQuery.of(context).padding.bottom;
 
     final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
 
@@ -61,46 +60,52 @@ class ColorPickerWidget extends ConsumerWidget with BottomNavMixin, SnackBarMixi
           size.height / 2,
         );
 
-    return WillPopScope(
-      onWillPop: () {
-        editNotifier.setTuneTypeValue(null);
-        return;
-      },
-      child: Scaffold(
-        key: _scaffoldKey,
-        extendBodyBehindAppBar: true,
-        appBar: MeterAppBar(
-          title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
-          statusBarHeight: statusBarHeight,
-          tuneValue: editNotifier.tuneTypeValue ?? 0,
-        ),
-        body: Stack(
-          children: <Widget>[
-            RepaintBoundary(
-              key: paintKey,
-              child: ImageView(
-                imageKey: imageKey,
-                onPickColor: editNotifier.isColorPicking
-                    ? (details) {
-                        colorPickNotifier.setOffset(details.globalPosition);
-                        searchPixel(
-                          details.globalPosition,
-                          imgNotifier.image.path,
-                          colorPickNotifier,
-                        );
-                      }
-                    : null,
-              ),
+    SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
+
+    return Container(
+      color: Theme.of(context).primaryColor,
+      child: WillPopScope(
+        onWillPop: () {
+          editNotifier.setTuneTypeValue(null);
+          return;
+        },
+        child: SafeArea(
+          child: Scaffold(
+            key: _scaffoldKey,
+            extendBodyBehindAppBar: true,
+            appBar: MeterAppBar(
+              title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
+              tuneValue: editNotifier.tuneTypeValue ?? 0,
             ),
-            if (!editNotifier.isColorPicking) TuneWidget(editingNotifier: editNotifier),
-            if (editNotifier.isColorPicking) buildColorFloatingBox(colorPopOffset, selectedColor),
-            if (editNotifier.isColorPicking) buildColorTextBox(colorPopOffset, selectedColor),
-            positionedBottomNav(
-              context: context,
-              bottomNavHeight: bottomNavHeight,
-              child: buildFieBottomNav(_scaffoldKey, editNotifier),
+            body: Stack(
+              children: <Widget>[
+                RepaintBoundary(
+                  key: paintKey,
+                  child: ImageView(
+                    imageKey: imageKey,
+                    onPickColor: editNotifier.isColorPicking
+                        ? (details) {
+                            colorPickNotifier.setOffset(details.globalPosition);
+                            searchPixel(
+                              details.globalPosition,
+                              imgNotifier.image.path,
+                              colorPickNotifier,
+                            );
+                          }
+                        : null,
+                  ),
+                ),
+                if (!editNotifier.isColorPicking) TuneWidget(editingNotifier: editNotifier),
+                if (editNotifier.isColorPicking) buildColorFloatingBox(colorPopOffset, selectedColor),
+                if (editNotifier.isColorPicking) buildColorTextBox(colorPopOffset, selectedColor),
+                positionedBottomNav(
+                  context: context,
+                  bottomNavHeight: 0,
+                  child: buildFieBottomNav(_scaffoldKey, editNotifier),
+                ),
+              ],
             ),
-          ],
+          ),
         ),
       ),
     );

@@ -4,10 +4,12 @@ import 'package:flutter_image_editor/mixins/bottom_nav_mixin.dart';
 import 'package:flutter_image_editor/mixins/navigator_mixin.dart';
 import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 import 'package:flutter_image_editor/models/export_item_model.dart';
+import 'package:flutter_image_editor/models/styles_item_model.dart';
 import 'package:flutter_image_editor/models/tools_item_model.dart';
 import 'package:flutter_image_editor/notifiers/editing_notifier.dart';
 import 'package:flutter_image_editor/screens/image_view.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
+import 'package:flutter_image_editor/types/styles_type.dart';
 import 'package:flutter_image_editor/widgets/export_list_widget.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
 import 'package:flutter_image_editor/widgets/fire_text_button.dart';
@@ -83,8 +85,15 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
     if (type == BottomNavsType.Styles) {
       var objectHeight = ConfigConstant.objectHeight4 + ConfigConstant.margin1 * 3;
       showStylesBottomSheet(
-        margin,
-        objectHeight,
+        margin: margin,
+        objectHeight: objectHeight,
+        scaffoldKey: scaffoldKey,
+        child: StylesListWidget(
+          items: StylesItemModel.items,
+          onPressed: (StyleType type) {
+            notifier.setCurrentStyleType(type);
+          },
+        ),
       ).closed.whenComplete(() => notifier.onModalClose());
     }
     if (type == BottomNavsType.Tools) {
@@ -102,23 +111,6 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
         notifier,
       ).whenComplete(() => notifier.onModalClose());
     }
-  }
-
-  PersistentBottomSheetController showStylesBottomSheet(
-    EdgeInsets margin,
-    double objectHeight,
-  ) {
-    return scaffoldKey.currentState.showBottomSheet(
-      (context) {
-        return Container(
-          margin: margin,
-          height: objectHeight,
-          color: Theme.of(context).primaryColor,
-          child: StylesListWidget(),
-        );
-      },
-      backgroundColor: Colors.transparent,
-    );
   }
 
   PersistentBottomSheetController showToolsBottomSheet(
@@ -206,6 +198,16 @@ class EditingScreen extends StatelessWidget with NavigatorMixin, BottomNavMixin 
     );
 
     return itemsWidget;
+  }
+
+  Widget smallModal({
+    EditingNotifier notifier,
+    double bottomNavHeight,
+    double statusBarHeight,
+    @required BuildContext context,
+    Widget child,
+  }) {
+    return Container();
   }
 
   Widget buildOnStylingBottomNavigation({

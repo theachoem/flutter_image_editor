@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/mixins/bottom_nav_mixin.dart';
 import 'package:flutter_image_editor/models/bottom_nav_button_model.dart';
 import 'package:flutter_image_editor/types/bottom_navs_type.dart';
@@ -16,9 +17,13 @@ class TuneImageScreen extends StatelessWidget with BottomNavMixin, SnackBarMixin
   @override
   Widget build(BuildContext context) {
     final bottomNavHeight = MediaQuery.of(context).padding.bottom;
-    final statusBarHeight = MediaQuery.of(context).padding.top;
+    // final statusBarHeight = MediaQuery.of(context).padding.top;
 
     final GlobalKey _scaffoldKey = GlobalKey<ScaffoldState>();
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(statusBarBrightness: Brightness.light),
+    );
 
     return Consumer(
       builder: (context, reader, child) {
@@ -28,57 +33,67 @@ class TuneImageScreen extends StatelessWidget with BottomNavMixin, SnackBarMixin
             editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].valueAsPercent.roundToDouble().toInt();
         var currentTuneTypeLabel = editNotifier.tuneTypeList[editNotifier.currentTuneTypeIndex].label;
 
-        return Stack(
-          children: [
-            Scaffold(
-              key: _scaffoldKey,
-              appBar: MeterAppBar(
-                title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
-                statusBarHeight: statusBarHeight,
-                tuneValue: editNotifier.tuneTypeValue,
-              ),
-              body: ImageView(),
-            ),
-            TuneWidget(
-              editingNotifier: editNotifier,
-            ),
-            positionedBottomNav(
-              context: context,
-              bottomNavHeight: bottomNavHeight,
-              child: FieBottomNav(
-                scaffoldKey: _scaffoldKey,
-                editingNotifier: editNotifier,
-                afterPop: () {
-                  editNotifier.setTuneTypeValue(0);
-                },
-                onSaved: () {},
-                centeredItems: [
-                  BottomNavButtonModel(
-                    type: BottomNavsType.Adjust,
-                    label: 'Adjust',
-                    iconData: Icons.tune,
-                    onPressed: () {
-                      editNotifier.setPopScrolling(!editNotifier.isPopScrolling);
-                    },
+        return WillPopScope(
+          onWillPop: () {
+            editNotifier.setTuneTypeValue(null);
+            return;
+          },
+          child: Container(
+            color: Theme.of(context).primaryColor,
+            child: Stack(
+              children: [
+                SafeArea(
+                  child: Scaffold(
+                    key: _scaffoldKey,
+                    appBar: MeterAppBar(
+                      title: "$currentTuneTypeLabel $tuneTypeValueAsPercent",
+                      tuneValue: editNotifier.tuneTypeValue,
+                    ),
+                    body: ImageView(),
                   ),
-                  BottomNavButtonModel(
-                    type: BottomNavsType.AutoAdjust,
-                    label: 'Auto-adjust',
-                    iconData: Icons.auto_fix_high,
-                    onPressed: () {
-                      showFieSnackBar(
-                        scaffoldKey: _scaffoldKey,
-                        bottomNavHeight: bottomNavHeight,
-                        label: "Auto-adjusted",
-                        actionLabel: "UNDO",
-                        onPressed: () {},
-                      );
+                ),
+                TuneWidget(
+                  editingNotifier: editNotifier,
+                ),
+                positionedBottomNav(
+                  context: context,
+                  bottomNavHeight: bottomNavHeight,
+                  child: FieBottomNav(
+                    scaffoldKey: _scaffoldKey,
+                    editingNotifier: editNotifier,
+                    afterPop: () {
+                      editNotifier.setTuneTypeValue(null);
                     },
+                    onSaved: () {},
+                    centeredItems: [
+                      BottomNavButtonModel(
+                        type: BottomNavsType.Adjust,
+                        label: 'Adjust',
+                        iconData: Icons.tune,
+                        onPressed: () {
+                          editNotifier.setPopScrolling(!editNotifier.isPopScrolling);
+                        },
+                      ),
+                      BottomNavButtonModel(
+                        type: BottomNavsType.AutoAdjust,
+                        label: 'Auto-adjust',
+                        iconData: Icons.auto_fix_high,
+                        onPressed: () {
+                          showFieSnackBar(
+                            scaffoldKey: _scaffoldKey,
+                            bottomNavHeight: bottomNavHeight,
+                            label: "Auto-adjusted",
+                            actionLabel: "UNDO",
+                            onPressed: () {},
+                          );
+                        },
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
+          ),
         );
       },
     );

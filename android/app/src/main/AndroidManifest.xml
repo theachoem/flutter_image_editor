@@ -10,6 +10,8 @@
         android:label="flutter_image_editor"
         android:icon="@mipmap/ic_launcher">
         <activity
+            android:name="com.yalantis.ucrop.UCropActivity"
+            android:screenOrientation="portrait"
             android:name=".MainActivity"
             android:launchMode="singleTop"
             android:theme="@style/LaunchTheme"

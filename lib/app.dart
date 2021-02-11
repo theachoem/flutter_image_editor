@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/screens/image_info.dart';
 import 'package:flutter_image_editor/notifiers/theme_notifier.dart';
+import 'package:flutter_image_editor/screens/tools/crop_screen.dart';
 import 'package:flutter_image_editor/screens/tools/tune_image_screen.dart';
 import 'package:flutter_image_editor/screens/editing_screen.dart';
 import 'package:flutter_image_editor/screens/home_screen.dart';
@@ -20,6 +22,7 @@ class App extends ConsumerWidget {
         '/image_info': (context) => FieImageInfo(),
         '/tune_image': (context) => TuneImageScreen(),
         '/white_balance': (context) => ColorPickerWidget(),
+        '/crop': (context) => CropScreen(),
       },
       themeMode: notifier.themeMode,
       theme: notifier.themeData,

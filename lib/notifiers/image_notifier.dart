@@ -31,6 +31,11 @@ class ImageNotifier extends ChangeNotifier {
     notifyListeners();
   }
 
+  setImageFile(File image) {
+    if (this._image != image) this._image = image;
+    notifyListeners();
+  }
+
   Future setData() async {
     _lastModify = await _image.lastModified();
     _lastAccessed = await _image.lastAccessed();

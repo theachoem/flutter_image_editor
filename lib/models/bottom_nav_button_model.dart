@@ -6,7 +6,7 @@ class BottomNavButtonModel extends BaseItemModel {
   final BottomNavsType type;
 
   BottomNavButtonModel({
-    @required this.type,
+    this.type,
     String label,
     IconData iconData,
     Function onPressed,

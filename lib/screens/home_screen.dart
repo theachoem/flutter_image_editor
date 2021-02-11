@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_image_editor/constants/config_constant.dart';
+// import 'package:flutter_image_editor/fie_scaffold/fie_scaffold.dart';
 import 'package:flutter_image_editor/notifiers/image_notifier.dart';
 import 'package:flutter_image_editor/widgets/fie_appbar.dart';
 import 'package:hooks_riverpod/all.dart';
@@ -9,13 +11,25 @@ class HomeScreen extends ConsumerWidget {
     await notifier.pickAnImage();
     if (notifier.requestStatus) {
       print(notifier.image);
-      Navigator.pushReplacementNamed(context, '/editing');
+      Navigator.pushNamed(context, '/editing');
+      // Navigator.of(context).push(
+      //   MaterialPageRoute(
+      //     builder: (context) => FieScaffold(
+      //       image: notifier.image,
+      //     ),
+      //   ),
+      // );
     }
   }
 
   @override
   Widget build(BuildContext context, reader) {
     var notifier = reader(imageNotifier);
+
+    SystemChrome.setSystemUIOverlayStyle(
+      SystemUiOverlayStyle(statusBarBrightness: Brightness.dark),
+    );
+
     return Scaffold(
       appBar: FieAppBar(),
       body: GestureDetector(
